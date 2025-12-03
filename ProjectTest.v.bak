@@ -1,0 +1,44 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity SquareWaveGen is
+    Port (
+        clk      : in  STD_LOGIC;  -- FPGA Clock (e.g., 50 MHz)
+        btn_up   : in  STD_LOGIC;  -- Button to increase frequency
+        btn_down : in  STD_LOGIC;  -- Button to decrease frequency
+        sq_wave  : out STD_LOGIC   -- Output Square Wave
+    );
+end SquareWaveGen;
+
+architecture Behavioral of SquareWaveGen is
+    signal counter     : INTEGER := 0;
+    signal clk_divider : INTEGER := 25000000; -- Default for 1 kHz
+    signal sq_wave_reg : STD_LOGIC := '0';
+begin
+
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            counter <= counter + 1;
+            if counter >= clk_divider then
+                counter <= 0;
+                sq_wave_reg <= NOT sq_wave_reg; -- Toggle output
+            end if;
+        end if;
+    end process;
+
+    -- Frequency Control
+    process(btn_up, btn_down)
+    begin
+        if btn_up = '1' then
+            clk_divider <= clk_divider - 50000; -- Increase frequency
+        elsif btn_down = '1' then
+            clk_divider <= clk_divider + 50000; -- Decrease frequency
+        end if;
+    end process;
+
+    sq_wave <= sq_wave_reg;
+
+end Behavioral;
